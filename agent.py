@@ -38,7 +38,7 @@ class Agent:
         return np.linalg.norm(self.location - shelter)
     
     def round(self, order):
-        # experiments showed that following two lines aren't necessary
+        # experiments showed that the following two lines aren't necessary
         #if self.NC > 0:
         #    self.set_NC_default()
         for o in order:
