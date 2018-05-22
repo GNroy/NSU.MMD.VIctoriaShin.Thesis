@@ -14,6 +14,11 @@ class Agent:
         self.shelter = shelter
         self.distance = self.get_distance(self.shelter)
     
+    def flip(self, partner):
+        shelter = partner.shelter
+        partner.assingn_shelter(self.shelter)
+        self.assingn_shelter(shelter)
+    
     def set_NC_default(self):
         self.NC = self.NC_default
     
@@ -48,9 +53,7 @@ class Agent:
             s21 = partner.get_distance(self.shelter)
             s22 = partner.distance
             if s11 + s22 > s12 + s21:
-                shelter = partner.shelter
-                partner.assingn_shelter(self.shelter)
-                self.assingn_shelter(shelter)
+                self.flip(partner)
                 self.set_NC_default()
                 self.set_CFR_default()
                 partner.set_NC_default()

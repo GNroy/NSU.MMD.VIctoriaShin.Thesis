@@ -2,9 +2,38 @@ import numpy as np
 from joblib import Parallel, delayed
 from multiprocessing import cpu_count
 from os import fsync
+import argparse
 
 from utills import *
 
+
+def perform_supervised(agents_num, n):
+    # prepare agents and shelters positions
+    agents = model_init(agents_num, n)
+    
+    # run the algorithm
+    # iterate until there are no intersections
+    round_counter = 0
+    is_finished = False
+    while not is_finished:
+        round_counter += 1
+        for item in combinations(agents, 2):
+            s11 = item[0].distance
+            s12 = item[0].get_distance(item[1].shelter)
+            s21 = item[1].get_distance(item[0].shelter)
+            s22 = item[1].distance
+            if s11 + s22 > s12 + s21:
+                item[0].flip(item[1])
+                break
+        else:
+            is_finished = True
+    
+    # perform path correctness check
+    if not paths_are_correct(agents):
+        raise RuntimeError('Agents paths are incorrect: ' + str(agents_num))
+    
+    # collect elapsed rounds
+    return round_counter
 
 def perform_trial(agents_num, n):
     # prepare agents and shelters positions
@@ -33,6 +62,11 @@ def perform_trial(agents_num, n):
     return round_counter
 
 if __name__ == '__main__':
+    # parser stuff
+    parser = argparse.ArgumentParser(description='Generates output test data.')
+    parser.add_argument('--su', action='store_const', const=perform_supervised, default=perform_trial, help='To perform supervised test or regular.')
+    parser.add_argument('-o', default=['out.log'], type=str, nargs=1, help='Output file destination.')
+    args = parser.parse_args()
 
     # expariment variables
     N = 100 # gridsize
@@ -51,12 +85,12 @@ if __name__ == '__main__':
     num_cores = cpu_count()
     
     # main cycle (for testing)
-    with open('out.log', 'w+') as f:
+    with open(args.o[0], 'w+') as f:
         for key in trials.keys():
             
             # collect round number for every trial
             # use parallelization
-            stat = Parallel(n_jobs=min(num_cores, trials[key]))(delayed(perform_trial)(key, N) for t in range(trials[key]))
+            stat = Parallel(n_jobs=min(num_cores, trials[key]))(delayed(args.su)(key, N) for t in range(trials[key]))
             
             # print mean round number for a given agents number
             f.write(' '.join([str(key), str(np.mean(stat))]) + '\n')
