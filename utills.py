@@ -5,7 +5,7 @@ from itertools import combinations
 
 # support function for places generation
 def extract(x, y):
-    return np.vstack((x//y, x%y))
+    return np.hstack((x//y, x%y))
 
 # support function for order generation
 def generate_order(m):
