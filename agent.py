@@ -66,8 +66,10 @@ class Agent:
             elif partner.NC == 0:
                 self.ajust_CFR()
                 partner.ajust_CFR()
+            '''
             else:
                 self.set_NC_default()
                 self.set_CFR_default()
                 partner.set_NC_default()
                 partner.set_CFR_default()
+            '''
